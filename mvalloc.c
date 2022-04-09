@@ -271,5 +271,12 @@ void mavalloc_destroy(void) {
 }
 
 int mavalloc_size(void) {
-  return MEMORY_SIZE;
+  int number_of_blocks = 0;
+  mem_free_block_t *p_iterator = mvalloc_free_list_pointer;
+  while (p_iterator)
+  {
+    number_of_blocks++;
+    p_iterator = p_iterator->next;
+  }
+  return number_of_blocks;
 }
