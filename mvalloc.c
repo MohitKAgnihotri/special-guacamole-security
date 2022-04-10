@@ -164,7 +164,7 @@ void *mavalloc_alloc(size_t size) {
 
   if (!new_b) {
     fprintf(stderr, "%s", "Sufficiently large block cannot be allocated\n");
-    exit(0);
+   return NULL;
   }
   mem_used_block_t *used_b = (mem_used_block_t *) new_b;
 
