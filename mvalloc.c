@@ -1,13 +1,6 @@
 #include "mvalloc.h"
 #include <stdio.h>
-#include <assert.h>
 #include <string.h>
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-
 #include "mem_alloc_types.h"
 
 /* pointer to the beginning of the memory region to manage */
@@ -21,6 +14,8 @@ static get_free_block pf_get_free_block_t;
 
 // Currently active algorithm
 enum ALGORITHM active_algorithm;
+
+mem_free_block_t *next_free_next_fit;
 
 mem_free_block_t *get_free_block_first_fit(size_t requested_size) {
   mem_free_block_t *p_free_block = mvalloc_free_list_pointer;
@@ -63,7 +58,6 @@ mem_free_block_t *get_free_block_worst_fit(size_t requested_size) {
   return worst_fit_block;
 }
 
-mem_free_block_t *next_free_next_fit;
 mem_free_block_t *get_free_block_next_fit(size_t requested_size) {
   mem_free_block_t *p_iterator = next_free_next_fit;
   int flag = 0;
@@ -139,8 +133,10 @@ void merge_memory_blocks(mem_free_block_t *block) {
 }
 
 void mavalloc_init(size_t size, enum ALGORITHM algorithm) {
-  mvalloc_free_list_pointer = malloc(MEMORY_SIZE);
-  mvalloc_free_list_pointer->size = MEMORY_SIZE - MIN_FREE_BLOCK_SIZE;
+  // update size by minimum free block size
+  size += MIN_FREE_BLOCK_SIZE;
+  mvalloc_free_list_pointer = malloc(size);
+  mvalloc_free_list_pointer->size = size - MIN_FREE_BLOCK_SIZE;
   mvalloc_free_list_pointer->next = NULL;
   mvalloc_free_list_pointer->prev = NULL;
 
@@ -162,7 +158,7 @@ void mavalloc_init(size_t size, enum ALGORITHM algorithm) {
   active_algorithm = algorithm;
 }
 
-void *my_malloc_alloc(size_t size) {
+void *mavalloc_alloc(size_t size) {
 
   mem_free_block_t *new_b = pf_get_free_block_t(size);
 
@@ -197,7 +193,7 @@ void *my_malloc_alloc(size_t size) {
   return used_b;
 }
 
-void my_malloc_free(void *p) {
+void mavalloc_free(void *p) {
   mem_free_block_t *new_b = (mem_free_block_t *) ((unsigned char *) p - MIN_USED_BLOCK_SIZE);
 
   new_b->size = MAX(mavalloc_get_block_size(p) + MIN_USED_BLOCK_SIZE, MIN_FREE_BLOCK_SIZE) - MIN_FREE_BLOCK_SIZE;
@@ -234,6 +230,7 @@ size_t mavalloc_get_block_size(void *addr) {
   return used_b->size;
 }
 
+#if 0
 int main(int argc, char **argv) {
   if (argc != 3) {
     fprintf(stderr, "%s", "Wrong number of arguments\n");
@@ -265,6 +262,7 @@ int main(int argc, char **argv) {
   fprintf(stderr, "%lu\n", (long unsigned int) (my_malloc_alloc(9)));
   return EXIT_SUCCESS;
 }
+#endif
 
 void mavalloc_destroy(void) {
   free(mvalloc_heap_pointer);

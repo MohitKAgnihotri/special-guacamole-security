@@ -19,7 +19,6 @@ enum ALGORITHM
   WORST_FIT = 3,
 };
 
-/* Allocator functions, to be implemented in mem_alloc.c */
 void mavalloc_init(size_t size, enum ALGORITHM algorithm);
 void *mavalloc_alloc(size_t size);
 void mavalloc_free(void *pointer);
