@@ -270,7 +270,7 @@ void mavalloc_destroy(void) {
 
 int mavalloc_size(void) {
   int number_of_blocks = 0;
-  mem_free_block_t *p_iterator = mvalloc_free_list_pointer;
+  mem_free_block_t *p_iterator = mvalloc_heap_pointer;
   while (p_iterator)
   {
     number_of_blocks++;
